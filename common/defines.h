@@ -25,6 +25,8 @@ namespace tools {
 	typedef uint8_t            byte_t;
 	typedef uint64_t           size_t;
 	typedef sint64_t           ptrdiff_t;
+
+	const char tab   = '\t';
 }
 
 

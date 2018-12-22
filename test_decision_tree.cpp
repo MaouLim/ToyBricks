@@ -1,80 +1,48 @@
 #include <iostream>
-#include <random>
-#include <ctime>
 
-#include <array>
+#include "container/matrix.h"
+#include "ml/decision_tree.h"
 
-typedef std::array<double, 4> arr_t;
+typedef int                       attr_type;
+typedef int                       value_type;
+typedef value_type                label_type;
+typedef tools::matrix<value_type> sample_space;
 
-double sigmoid(double x) {
-	return 1.0 / (1.0 + std::exp(-x));
-}
+enum outlook     { sunny, overcast, rain };
+enum temperature { hot, mild, cool };
+enum humidity    { high, normal };
+enum windy       { windy_no, windy_yes };
+enum play_or_not { no, yes };
+
+const value_type training_data[] = {
+	sunny   , hot , high  , windy_no , no ,
+	sunny   , hot , high  , windy_yes, no ,
+	overcast, hot , high  , windy_no , yes,
+	rain    , mild, high  , windy_no , yes,
+	rain    , cool, normal, windy_no , yes,
+	rain    , cool, normal, windy_yes, no ,
+	overcast, cool, normal, windy_yes, yes,
+	sunny   , mild, high  , windy_no , no ,
+	sunny   , cool, normal, windy_no , yes,
+	rain    , mild, normal, windy_no , yes,
+	sunny   , mild, normal, windy_yes, yes,
+	overcast, mild, high  , windy_yes, yes,
+	overcast, hot , normal, windy_no , yes,
+	rain    , mild, high  , windy_yes, no
+};
 
 int main() {
+
+	const sample_space training_set(14, 5, training_data, training_data + 14 * 5);
+
+	ml::decision_tree<attr_type, value_type> tree;
+	tree.build(training_set);
+
+	std::cout << tree << std::endl;
 
 	return 0;
 }
 
-//typedef std::array<double, 4> arr_t;
-//
-//const size_t size = 1000;
-//arr_t inputs[size];
-//
-//double target_func(const arr_t& x) {
-//	return 1 * x[0] + 2 * x[1] + 3 * x[2] + 4 * x[3] +
-//	       10 * std::sin(x[1] + x[2] + x[3]);
-//}
-//
-//double dot(const arr_t& x, const arr_t& y) {
-//	return x[0] * y[0] + x[1] * y[1] +
-//	       x[2] * y[2] + x[3] * y[3];
-//}
-//
-//int main() {
-//
-//	for (size_t i = 0; i < 1000; ++i) {
-//		inputs[i][0] = 1;
-//		inputs[i][1] = i % 10;
-//		inputs[i][2] = (i / 10) % 10;
-//		inputs[i][3] = (i / 100) % 10;
-//	}
-//
-//	arr_t theta;
-//
-//	std::mt19937_64 rand_engine(time(nullptr));
-//	std::uniform_real_distribution rand_real(0.1, 0.9);
-//	std::uniform_int_distribution  rand_int(0, 1000);
-//
-//	const size_t batch_size = 100;
-//	const double alpha      = 0.02;
-//
-//	for (auto& each : theta) {
-//		each = rand_real(rand_engine);
-//	}
-//
-//	for (size_t epoch = 0; epoch < 20000; ++epoch) {
-//		arr_t tmp_theta;
-//		size_t index = rand_int(rand_engine);
-//
-//		for (size_t i = 0; i < 4; ++i) {
-//			double delta(0.0);
-//
-//			for (size_t j = 0; j < batch_size; ++j) {
-//				arr_t& x = inputs[(index + j) % size];
-//				delta += x[i] * (dot(theta, x) - target_func(x));
-//			}
-//
-//			delta /= batch_size;
-//
-//			tmp_theta[i] = theta[i] - alpha * delta;
-//		}
-//
-//		memcpy(&theta[0], &tmp_theta[0], 4 * sizeof (double));
-//	}
-//
-//	for (auto each : theta) {
-//		std::cout << each << ' ';
-//	}
-//
-//	return 0;
-//}
+
+
+

@@ -5,10 +5,15 @@
 #ifndef _DECISION_TREE_H_
 #define _DECISION_TREE_H_
 
-#include <vector>
+
 #include <cassert>
-#include <map>
 #include <cmath>
+
+#include <ostream>
+#include <limits>
+
+#include <map>
+#include <vector>
 #include <set>
 
 namespace ml {
@@ -69,10 +74,13 @@ namespace ml {
 			_destroy(m_root);
 
 			std::vector<bool> blacklist(matrix.cols(), false);
-			size_t count_list = 0;
+			blacklist.back() = true;
+			size_t count_list = 1;
 
 			_build(matrix, m_root, blacklist, count_list);
 		}
+
+		void print(std::ostream& stream) const { _print(stream, m_root, 0); }
 
 	private:
 		static link_type _create_node(
@@ -89,10 +97,28 @@ namespace ml {
 
 			double gain = 0.0;
 			std::map<label_type, size_t> count_label_vals;
+
+			for (auto r = 0; r < matrix.rows(); ++r) {
+				label_type label = matrix[r][matrix.cols() - 1];
+				auto lab_itr = count_label_vals.find(label);
+				if (count_label_vals.end() == lab_itr) {
+					count_label_vals.insert(
+						lab_itr, std::make_pair((label_type) label, (size_t) 1)
+					);
+				}
+				else { ++lab_itr->second; }
+			}
+
+			for (const auto& label_count : count_label_vals) {
+				double p = (double) label_count.second / matrix.rows();
+				gain -= p * std::log2(p);
+			}
+
+			count_label_vals.clear();
 			std::map<value_type, size_t> count_attr_vals;
 
 			for (auto r = 0; r < matrix.rows(); ++r) {
-				value_type val = matrix(r, attr);
+				value_type val = matrix[r][attr];
 				auto attr_itr = count_attr_vals.find(val);
 				if (count_attr_vals.end() == attr_itr) {
 					count_attr_vals.insert(
@@ -105,10 +131,11 @@ namespace ml {
 			for (const auto& val_count : count_attr_vals) {
 				int total = 0;
 				double entropy = 0.0;
+				count_label_vals.clear();
 
 				for (auto r = 0; r < matrix.rows(); ++r) {
-					if (val_count.first == matrix(r, attr)) {
-						label_type label = matrix(r, matrix.cols() - 1);
+					if (val_count.first == matrix[r][attr]) {
+						label_type label = matrix[r][matrix.cols() - 1];
 						auto lab_itr = count_label_vals.find(label);
 						if (count_label_vals.end() == lab_itr) {
 							count_label_vals.insert(
@@ -125,7 +152,7 @@ namespace ml {
 					entropy -= p * std::log2(p);
 				}
 
-				gain += (double) total / matrix.rows() * entropy;
+				gain -= (double) total / matrix.rows() * entropy;
 			}
 
 			return gain;
@@ -136,7 +163,7 @@ namespace ml {
 			assert(matrix.cols() == blacklist.size());
 
 			attr_type max_attr = node_type::invalid_attr;
-			double max_gain = std::numeric_limits<double>::min();
+			double max_gain = -std::numeric_limits<double>::max();
 
 			for (attr_type i = 0; i < matrix.cols(); ++i) {
 				if (blacklist[i]) { continue; }
@@ -174,11 +201,23 @@ namespace ml {
 		}
 
 		template <typename _Matrix2D>
+		static bool _same_label(const _Matrix2D& matrix) {
+			for (size_t r = 1; r < matrix.rows(); ++r) {
+				if (matrix[  r  ][matrix.cols() - 1] !=
+				    matrix[r - 1][matrix.cols() - 1]) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		template <typename _Matrix2D>
 		static void _build(
 			const _Matrix2D&   matrix,
 			link_type&         root,
-			std::vector<bool>& blacklist,
-			size_t&            count_list
+			std::vector<bool>  blacklist,
+			size_t             count_list
 		) {
 			if (_same_label(matrix)) {
 				root = _create_node(
@@ -197,6 +236,7 @@ namespace ml {
 			}
 
 			attr_type id = _max_gain_attr(matrix, blacklist);
+			assert(node_type::invalid_attr != id);
 			blacklist[id] = true; ++count_list;
 
 			root = _create_node(id, node_type::invalid_label);
@@ -207,12 +247,14 @@ namespace ml {
 				auto val = matrix[r][id];
 				auto itr = value_set.find(val);
 				if (value_set.end() == itr) {
+					value_set.insert(itr, val);
 
-					typedef typename _Matrix2D::row_iterator iterator;
+					typedef typename _Matrix2D::const_row_iterator iterator;
 
 					auto sub = matrix.select(
 						[id, val](size_t, iterator first, iterator) { return val == first[id]; }
 					);
+
 					root->children.emplace_back(nullptr);
 					_build(sub, root->children.back(), blacklist, count_list);
 				}
@@ -228,9 +270,38 @@ namespace ml {
 			root = nullptr;
 		}
 
+		static void _print(std::ostream& stream, link_type root, size_t indent) {
+			if (nullptr == root) { return; }
+
+			for (size_t i = 0; i < indent; ++i) { stream << ' '; }
+			if (root->children.empty()) {
+				stream << root->label << std::endl;
+				return;
+			}
+
+			stream << root->attribute << std::endl;
+			indent += 4;
+
+			for (auto& each : root->children) {
+				//stream <<
+				_print(stream, each, indent);
+			}
+		}
+
 	private:
 		link_type m_root;
 	};
+}
+
+namespace std {
+
+	template <typename _Attr, typename _Val>
+	std::ostream& operator<<(
+		std::ostream& stream, const ml::decision_tree<_Attr, _Val>& tree
+	) {
+		tree.print(stream);
+		return stream;
+	}
 }
 
 #endif //_DECISION_TREE_H_

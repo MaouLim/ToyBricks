@@ -293,7 +293,7 @@ namespace tools {
 		enum init_mode { zero, identity, random };
 
 		matrix(size_type rows, size_type cols, init_mode mode = zero) :
-			m_rows(rows), m_cols(m_cols)
+			m_rows(rows), m_cols(cols)
 		{
 			switch (mode) {
 				case zero : {
@@ -378,8 +378,8 @@ namespace tools {
 		}
 
 		template <typename _Condition>
-		self_type select(_Condition cond) {
-			self_type result(0, this->m_cols);
+		self_type select(_Condition cond) const {
+			self_type result(0, this->m_cols, zero);
 
 			for (size_type r = 0; r < m_rows; ++r) {
 				if (cond(r, row_begin(r), row_end(r))) {
