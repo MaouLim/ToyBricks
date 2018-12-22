@@ -1,5 +1,9 @@
-#ifndef _VECTOR3_H_
-#define _VECTOR3_H_
+/*
+ * Created by Maou Lim on 2018/12/22.
+ */
+
+#ifndef _VECTOR4_H_
+#define _VECTOR4_H_
 
 #include <cassert>
 
@@ -9,10 +13,10 @@
 namespace tools {
 
 	template <typename _Tp, typename _Precise>
-	struct vector3 {
+	struct vector4 {
 	public:
 		typedef _Tp                     value_type;
-		typedef vector3<_Tp, _Precise>  vec_type;
+		typedef vector4<_Tp, _Precise>  vec_type;
 		typedef vec_type                type;
 		typedef _Precise                precise_type;
 
@@ -29,27 +33,31 @@ namespace tools {
 
 	public:
 		union {
-			struct { _Tp x, y, z; };
-			struct { _Tp r, b, g; };
-			struct { _Tp s, t, p; };
+			struct { _Tp x, y, z, w; };
+			struct { _Tp r, b, g, a; };
+			struct { _Tp s, t, p, q; };
 		};
 
-		static const size_type dimension = 3;
+		static const size_type dimension = 4;
 
-		vector3(value_type scalar = static_cast<value_type>(0)) : x(scalar), y(scalar), z(scalar) { }
-		vector3(value_type x, value_type y, value_type z) : x(x), y(y), z(z) { }
+		vector4(value_type scalar = static_cast<value_type>(0)) :
+			x(scalar), y(scalar), z(scalar), w(scalar) { }
+
+		vector4(value_type x, value_type y, value_type z, value_type w) : x(x), y(y), z(z), w(w) { }
 
 		template <typename _OtherTp>
-		explicit vector3(_OtherTp scalar) :
+		explicit vector4(_OtherTp scalar) :
 			x(static_cast<value_type>(scalar)),
 			y(static_cast<value_type>(scalar)),
-		    z(static_cast<value_type>(scalar)) { }
+			z(static_cast<value_type>(scalar)),
+			w(static_cast<value_type>(scalar)) { }
 
-		template <typename _XTp, typename _YTp, typename _ZTp>
-		explicit vector3(_XTp x, _YTp y, _ZTp z) :
+		template <typename _XTp, typename _YTp, typename _ZTp, typename _WTp>
+		explicit vector4(_XTp x, _YTp y, _ZTp z, _WTp w) :
 			x(static_cast<value_type>(x)),
-			y(static_cast<value_type>(y)), 
-			z(static_cast<value_type>(z)) { }
+			y(static_cast<value_type>(y)),
+			z(static_cast<value_type>(z)),
+			w(static_cast<value_type>(w)) { }
 
 		const_reference operator[](size_t index) const {
 			assert(index < dimension);
@@ -63,10 +71,11 @@ namespace tools {
 		}
 
 		template <typename _OtherTp = _Tp>
-		self_type& operator=(const vector3<_OtherTp, _Precise>& other) {
+		self_type& operator=(const vector4<_OtherTp, _Precise>& other) {
 			this->x = static_cast<value_type>(other.x);
 			this->y = static_cast<value_type>(other.y);
 			this->z = static_cast<value_type>(other.z);
+			this->w = static_cast<value_type>(other.w);
 			return *this;
 		}
 
@@ -75,14 +84,16 @@ namespace tools {
 			this->x += static_cast<value_type>(scalar);
 			this->y += static_cast<value_type>(scalar);
 			this->z += static_cast<value_type>(scalar);
+			this->w += static_cast<value_type>(scalar);
 			return *this;
 		}
 
 		template <typename _OtherTp = _Tp>
-		self_type& operator+=(const vector3<_OtherTp, _Precise>& other) {
+		self_type& operator+=(const vector4<_OtherTp, _Precise>& other) {
 			this->x += static_cast<value_type>(other.x);
 			this->y += static_cast<value_type>(other.y);
 			this->z += static_cast<value_type>(other.z);
+			this->w += static_cast<value_type>(other.w);
 			return *this;
 		}
 
@@ -91,14 +102,16 @@ namespace tools {
 			this->x -= static_cast<value_type>(scalar);
 			this->y -= static_cast<value_type>(scalar);
 			this->z -= static_cast<value_type>(scalar);
+			this->w -= static_cast<value_type>(scalar);
 			return *this;
 		}
 
 		template <typename _OtherTp = _Tp>
-		self_type& operator-=(const vector3<_OtherTp, _Precise>& other) {
+		self_type& operator-=(const vector4<_OtherTp, _Precise>& other) {
 			this->x -= static_cast<value_type>(other.x);
 			this->y -= static_cast<value_type>(other.y);
 			this->z -= static_cast<value_type>(other.z);
+			this->w -= static_cast<value_type>(other.w);
 			return *this;
 		}
 
@@ -107,6 +120,7 @@ namespace tools {
 			this->x *= static_cast<value_type>(scalar);
 			this->y *= static_cast<value_type>(scalar);
 			this->z *= static_cast<value_type>(scalar);
+			this->w *= static_cast<value_type>(scalar);
 			return *this;
 		}
 
@@ -115,6 +129,7 @@ namespace tools {
 			this->x /= static_cast<value_type>(scalar);
 			this->y /= static_cast<value_type>(scalar);
 			this->z /= static_cast<value_type>(scalar);
+			this->w /= static_cast<value_type>(scalar);
 			return *this;
 		}
 
@@ -123,6 +138,7 @@ namespace tools {
 			this->x %= static_cast<value_type>(scalar);
 			this->y %= static_cast<value_type>(scalar);
 			this->z %= static_cast<value_type>(scalar);
+			this->w %= static_cast<value_type>(scalar);
 			return *this;
 		}
 
@@ -134,37 +150,28 @@ namespace tools {
 
 #ifdef _VECTOR_USE_CONST_
 	template <typename _Tp, typename _Precise>
-	const vector3<_Tp, _Precise> zero(static_cast<_Tp>(0), static_cast<_Tp>(0), static_cast<_Tp>(0));
+	const vector4<_Tp, _Precise> zero(static_cast<_Tp>(0), static_cast<_Tp>(0), static_cast<_Tp>(0), static_cast<_Tp>(0));
 
 	template <typename _Tp, typename _Precise>
-	const vector3<_Tp, _Precise> x(static_cast<_Tp>(1), static_cast<_Tp>(0), static_cast<_Tp>(0));
+	const vector4<_Tp, _Precise> x(static_cast<_Tp>(1), static_cast<_Tp>(0), static_cast<_Tp>(0), static_cast<_Tp>(0));
 
 	template <typename _Tp, typename _Precise>
-	const vector3<_Tp, _Precise> y(static_cast<_Tp>(0), static_cast<_Tp>(1), static_cast<_Tp>(0));
+	const vector4<_Tp, _Precise> y(static_cast<_Tp>(0), static_cast<_Tp>(1), static_cast<_Tp>(0), static_cast<_Tp>(0));
 
 	template <typename _Tp, typename _Precise>
-	const vector3<_Tp, _Precise> z(static_cast<_Tp>(0), static_cast<_Tp>(0), static_cast<_Tp>(1));
+	const vector4<_Tp, _Precise> z(static_cast<_Tp>(0), static_cast<_Tp>(0), static_cast<_Tp>(1), static_cast<_Tp>(0));
 
 	template <typename _Tp, typename _Precise>
-	const vector3<_Tp, _Precise> xy(static_cast<_Tp>(1), static_cast<_Tp>(1), static_cast<_Tp>(0));
-
-	template <typename _Tp, typename _Precise>
-	const vector3<_Tp, _Precise> yz(static_cast<_Tp>(0), static_cast<_Tp>(1), static_cast<_Tp>(1));
-
-	template <typename _Tp, typename _Precise>
-	const vector3<_Tp, _Precise> zx(static_cast<_Tp>(1), static_cast<_Tp>(0), static_cast<_Tp>(1));
-
-	template <typename _Tp, typename _Precise>
-	const vector3<_Tp, _Precise> xyz(static_cast<_Tp>(1), static_cast<_Tp>(1), static_cast<_Tp>(1));
+	const vector4<_Tp, _Precise> w(static_cast<_Tp>(0), static_cast<_Tp>(0), static_cast<_Tp>(0), static_cast<_Tp>(1));
 #endif
 
-	using vector3u       = vector3<uint32_t, precise::midp>;
-	using vector3i       = vector3<sint32_t, precise::midp>;
+	using vector4u       = vector4<uint32_t, precise::midp>;
+	using vector4i       = vector4<sint32_t, precise::midp>;
 
-	using vector3f       = vector3<float32_t, precise::midp>;
-	using vector3f_highp = vector3<float64_t, precise::highp>;
+	using vector4f       = vector4<float32_t, precise::midp>;
+	using vector4f_highp = vector4<float64_t, precise::highp>;
 
-	using vector3d       = vector3<float64_t, precise::midp>;
+	using vector4d       = vector4<float64_t, precise::midp>;
 }
 
-#endif
+#endif //_VECTOR4_H_

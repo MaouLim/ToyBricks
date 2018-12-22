@@ -38,6 +38,7 @@ add_executable(ContainerModule
         common/functor.h
 )
 
-add_executable(CandidateEliminationAlgorithm test_candidate_elimination.cpp ml/candidate_elimination.h)
+add_executable(CandidateEliminationAlgorithm test_candidate_elimination.cpp ml/candidate_elimination.h math/vector4.h)
 add_executable(DecisionTreeAlgorithm test_decision_tree.cpp ml/decision_tree.h)
 add_executable(LinearRegression test_linear_regression.cpp ml/optimizer.h)
+add_executable(LogisticRegression test_logistic_regression.cpp ml/optimizer.h)

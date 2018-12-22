@@ -40,7 +40,7 @@ namespace tools {
 		typedef vector_trait<vec<_Tp, _Precise>> trait_type;
 		std::stringstream stream;
 		return _to_tsv_impl<
-			trait_type::dimenssion, _Tp, _Precise, vec
+			trait_type::dimension, _Tp, _Precise, vec
 		>::element_sprint(stream, src).str();
 	}
 

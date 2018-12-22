@@ -37,7 +37,7 @@ namespace tools {
 
 		static const size_type dimension = 2;
 
-		vector2(value_type scalar) : x(scalar), y(scalar) { }
+		vector2(value_type scalar = static_cast<value_type>(0)) : x(scalar), y(scalar) { }
 		vector2(value_type x, value_type y) : x(x), y(y) { }
 
 		template <typename _OtherTp>

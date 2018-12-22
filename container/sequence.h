@@ -296,7 +296,7 @@ namespace tools {
 		}
 
 		template <typename... _Args>
-		iterator emplace(const_reference pos, _Args&&... args) {
+		iterator emplace(const_iterator pos, _Args&&... args) {
 			return iterator(_emplace(pos - begin(), std::forward<_Args>(args)...));
 		}
 

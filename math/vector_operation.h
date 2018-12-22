@@ -1,3 +1,5 @@
+#ifndef _ITERATOR_H_ /* conflict with iterator.h */
+
 #ifndef _VECTOR_OPERATION_H_
 #define _VECTOR_OPERATION_H_
 
@@ -56,6 +58,28 @@ namespace tools {
 	template <
 		typename _Tp,
 		typename _Precise,
+		template <typename, typename> class vec,
+		typename _Scalar
+	>
+	vec<_Tp, _Precise> operator*(const vec<_Tp, _Precise>& v, _Scalar scalar) {
+		vec<_Tp, _Precise> result;
+		transform(v, result, [scalar](size_t, _Tp val) { return val * scalar; });
+		return result;
+	}
+
+	template <
+		typename _Tp,
+		typename _Precise,
+		template <typename, typename> class vec,
+		typename _Scalar
+	>
+	vec<_Tp, _Precise> operator*(_Scalar scalar, const vec<_Tp, _Precise>& v) {
+		return operator*(v, scalar);
+	}
+
+	template <
+		typename _Tp,
+		typename _Precise,
 		template <typename, typename> class vec
 	>
 	vec<_Tp, _Precise> operator*(
@@ -63,6 +87,18 @@ namespace tools {
 		const vec<_Tp, _Precise>& right
 	) {
 		return apply(left, right, multiply<_Tp>());
+	}
+
+	template <
+		typename _Tp,
+		typename _Precise,
+		template <typename, typename> class vec,
+		typename _Scalar
+	>
+	vec<_Tp, _Precise> operator/(const vec<_Tp, _Precise>& v, _Scalar scalar) {
+		vec<_Tp, _Precise> result;
+		transform(v, result, [scalar](size_t, _Tp val) { return val / scalar; });
+		return result;
 	}
 
 	template <
@@ -90,4 +126,5 @@ namespace tools {
 	}
 }
 
+#endif
 #endif
