@@ -5,7 +5,6 @@
 
 typedef int                       attr_type;
 typedef int                       value_type;
-typedef value_type                label_type;
 typedef tools::matrix<value_type> sample_space;
 
 enum outlook     { sunny, overcast, rain };

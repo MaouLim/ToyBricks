@@ -213,4 +213,15 @@ namespace ml {
 	};
 }
 
+namespace std {
+
+	template <typename _EnumTp>
+	std::ostream& operator<<(
+		std::ostream& stream, const ml::version_space<_EnumTp>& space
+	) {
+		space.print(stream);
+		return stream;
+	}
+}
+
 #endif //_CANDIDATE_ELIMINATION_H_
