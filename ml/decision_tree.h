@@ -18,32 +18,32 @@
 
 namespace ml {
 
-	template <typename _Attr, typename _Label>
+	template <typename _Attr, typename _Val>
 	struct _dt_node {
 	public:
 		typedef _Attr  attr_type;
-		typedef _Label label_type;
+		typedef _Val   value_type;
 
 	private:
-		typedef _dt_node<_Attr, _Label> node_type;
+		typedef _dt_node<_Attr, _Val> node_type;
 		typedef node_type*              link_type;
 
 	public:
 		static const attr_type  invalid_attr;
-		static const label_type invalid_label;
+		static const value_type invalid_value;
 
 		std::vector<link_type> children;
 		attr_type              attribute;
-		label_type             label;
+		value_type             value;
 
-		_dt_node() : attribute(invalid_attr), label(invalid_label) { }
+		_dt_node() : attribute(invalid_attr), value(invalid_value) { }
 	};
 
-	template <typename _Attr, typename _Label>
-	const _Attr _dt_node<_Attr, _Label>::invalid_attr(-1); // no-numeric _Attr will throw compiling error
+	template <typename _Attr, typename _Val>
+	const _Attr _dt_node<_Attr, _Val>::invalid_attr(-1); // no-numeric _Attr will throw compiling error
 
-	template <typename _Attr, typename _Label>
-	const _Label _dt_node<_Attr, _Label>::invalid_label(-1); // no-numeric _Label will throw compiling error
+	template <typename _Attr, typename _Val>
+	const _Val _dt_node<_Attr, _Val>::invalid_value(-1); // no-numeric _Label will throw compiling error
 
 	template <typename _Attr, typename _Val>
 	class decision_tree {
@@ -77,18 +77,18 @@ namespace ml {
 			blacklist.back() = true;
 			size_t count_list = 1;
 
-			_build(matrix, m_root, blacklist, count_list);
+			_build(matrix, m_root, node_type::invalid_value, blacklist, count_list);
 		}
 
 		void print(std::ostream& stream) const { _print(stream, m_root, 0); }
 
 	private:
 		static link_type _create_node(
-			const attr_type& attr, const label_type& label
+			const attr_type& attr, const value_type& value
 		) {
 			link_type p = new node_type();
 			p->attribute = attr;
-			p->label = label;
+			p->value = value;
 			return p;
 		}
 
@@ -179,7 +179,7 @@ namespace ml {
 		static label_type _most_label(const _Matrix2D& matrix) {
 			std::map<label_type, size_t> count_label_vals;
 
-			label_type most_label = node_type::invalid_label;
+			label_type most_label = node_type::invalid_value;
 			size_t     most_count = 0;
 
 			for (auto r = 0; r < matrix.rows(); ++r) {
@@ -216,6 +216,7 @@ namespace ml {
 		static void _build(
 			const _Matrix2D&   matrix,
 			link_type&         root,
+			value_type         choice,
 			std::vector<bool>  blacklist,
 			size_t             count_list
 		) {
@@ -239,7 +240,7 @@ namespace ml {
 			assert(node_type::invalid_attr != id);
 			blacklist[id] = true; ++count_list;
 
-			root = _create_node(id, node_type::invalid_label);
+			root = _create_node(id, choice);
 
 			std::set<attr_type> value_set;
 
@@ -256,7 +257,7 @@ namespace ml {
 					);
 
 					root->children.emplace_back(nullptr);
-					_build(sub, root->children.back(), blacklist, count_list);
+					_build(sub, root->children.back(), val, blacklist, count_list);
 				}
 			}
 		}
@@ -274,16 +275,20 @@ namespace ml {
 			if (nullptr == root) { return; }
 
 			for (size_t i = 0; i < indent; ++i) { stream << ' '; }
+
+			if (node_type::invalid_value != root->value) {
+				stream << "choice: " << root->value << "->";
+			}
+
 			if (root->children.empty()) {
-				stream << root->label << std::endl;
+				stream << "label: " << root->value << std::endl;
 				return;
 			}
 
-			stream << root->attribute << std::endl;
+			stream << "attr: " << root->attribute << std::endl;
 			indent += 4;
 
 			for (auto& each : root->children) {
-				//stream <<
 				_print(stream, each, indent);
 			}
 		}
