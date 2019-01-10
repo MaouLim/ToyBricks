@@ -158,7 +158,7 @@ int main() {
 //		std::cout << *iter << " ";
 //	}
 
-//	tools::single_list<int> list;
+//	tools::unidirectional_list<int> list;
 //
 //	std::cout << "empty: " << list.empty() << std::endl;
 //

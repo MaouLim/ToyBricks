@@ -30,15 +30,15 @@ add_executable(ContainerModule
         container/queue.h
         container/rb_tree.h
         container/sequence.h
-        container/single_list.h
+        container/unidirectional_list.h
         container/stack.h
         container/tree_base.h
         container/type_base.h
         common/defines.h
         common/functor.h
-)
+        container/bidirectional_list.h)
 
-add_executable(CandidateEliminationAlgorithm test_candidate_elimination.cpp ml/candidate_elimination.h math/vector4.h)
-add_executable(DecisionTreeAlgorithm test_decision_tree.cpp ml/decision_tree.h)
-add_executable(LinearRegression test_linear_regression.cpp ml/optimizer.h)
-add_executable(LogisticRegression test_logistic_regression.cpp ml/optimizer.h)
+add_executable(CandidateEliminationAlgorithm example/test_candidate_elimination.cpp ml/candidate_elimination.h math/vector4.h)
+add_executable(DecisionTreeAlgorithm example/test_decision_tree.cpp ml/decision_tree.h)
+add_executable(LinearRegression example/test_linear_regression.cpp ml/optimizer.h)
+add_executable(LogisticRegression example/test_logistic_regression.cpp ml/optimizer.h)

@@ -16,14 +16,14 @@ namespace ml {
 	template <typename _EnumTp>
 	using candidate = std::vector<_EnumTp>;
 
+	template <typename _EnumTp>
+	using constraint = std::vector<_EnumTp>;
+
 	template <typename _EnumTp, typename _BoolTp = bool>
 	using sample = std::pair<candidate<_EnumTp>, _BoolTp>;
 
 	template <typename _EnumTp>
 	using meta = std::vector<_EnumTp>;
-
-	template <typename _EnumTp>
-	using constraint = std::vector<_EnumTp>;
 
 	template <typename _EnumTp>
 	struct meta_info {
@@ -173,7 +173,7 @@ namespace ml {
 		const std::list<rule_type>& general_rules() const { return m_general; }
 		const std::list<rule_type>& special_rules() const { return m_special; }
 
-		void print(std::ostream& stream) {
+		void print(std::ostream& stream) const {
 			stream << "Version Space - Special Rules" << std::endl;
 			for (auto& rule : m_special) {
 				for (auto& attr : rule) {
@@ -207,7 +207,7 @@ namespace ml {
 
 
 	private:
-		const meta_type&     m_limit;
+		const meta_type      m_limit;
 		std::list<rule_type> m_general;
 		std::list<rule_type> m_special; /* whether the size of m_special is equal to 1? */
 	};

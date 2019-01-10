@@ -2,19 +2,21 @@
  * Created by Maou Lim on 2018/1/18.
  */
 
-#ifndef _SINGLE_LIST_H_
-#define _SINGLE_LIST_H_
+#ifndef _UNIDIRECTIONAL_LIST_H_
+#define _UNIDIRECTIONAL_LIST_H_
+
+#include <memory>
 
 #include "iterator.h"
 #include "memory.h"
 
 namespace tools {
 
-	struct slist_node_base {
-		typedef slist_node_base* base_ptr;
+	struct unilist_node_base {
+		typedef unilist_node_base* base_ptr;
 
-		explicit slist_node_base(base_ptr p = nullptr) : next(p) { }
-		~slist_node_base() { next = nullptr; }
+		explicit unilist_node_base(base_ptr p = nullptr) : next(p) { }
+		~unilist_node_base() { next = nullptr; }
 
 		base_ptr next;
 
@@ -31,26 +33,26 @@ namespace tools {
 	};
 
 	template <typename _Val>
-	struct slist_node : slist_node_base {
-		typedef slist_node<_Val>* link_type;
-		typedef _Val              value_type;
+	struct unilist_node : unilist_node_base {
+		typedef unilist_node<_Val>* link_type;
+		typedef _Val                value_type;
 
-		explicit slist_node(const value_type& value) : val(value) { }
+		explicit unilist_node(const value_type& value) : val(value) { }
 
 		value_type val;
 
 		link_type get_next() const { return (link_type) this->next; }
 	};
 
-	struct slist_iterator_base {
-		typedef slist_node_base::base_ptr base_ptr;
-		typedef std::forward_iterator_tag iterator_category;
-		typedef ptrdiff_t                 difference_type;
+	struct unilist_iterator_base {
+		typedef unilist_node_base::base_ptr base_ptr;
+		typedef std::forward_iterator_tag   iterator_category;
+		typedef ptrdiff_t                   difference_type;
 
 		base_ptr node;
 
-		slist_iterator_base() = default;
-		explicit slist_iterator_base(base_ptr p) : node(p) { }
+		unilist_iterator_base() = default;
+		explicit unilist_iterator_base(base_ptr p) : node(p) { }
 
 		void increment() {
 			node = node->next;
@@ -58,22 +60,22 @@ namespace tools {
 	};
 
 	template <typename _Val>
-	struct slist_const_iterator : slist_iterator_base {
+	struct unilist_const_iterator : unilist_iterator_base {
 	public:
 		typedef _Val        value_type;
 		typedef const _Val& reference;
 		typedef const _Val* pointer;
 
 	protected:
-		typedef slist_const_iterator<_Val>           self_type;
-		typedef slist_iterator_base                  base_type;
-		typedef typename slist_node<_Val>::link_type link_type;
+		typedef unilist_const_iterator<_Val>           self_type;
+		typedef unilist_iterator_base                  base_type;
+		typedef typename unilist_node<_Val>::link_type link_type;
 
 	public:
-		slist_const_iterator() = default;
-		slist_const_iterator(const self_type&) = default;
-		slist_const_iterator(const base_type& other) : slist_iterator_base(other.node) { }
-		explicit slist_const_iterator(link_type p) : slist_iterator_base(p) { }
+		unilist_const_iterator() = default;
+		unilist_const_iterator(const self_type&) = default;
+		unilist_const_iterator(const base_type& other) : unilist_iterator_base(other.node) { }
+		explicit unilist_const_iterator(link_type p) : unilist_iterator_base(p) { }
 
 		reference operator*() const { return link_type(node)->val; }
 		pointer operator->() const { return &(operator*()); }
@@ -91,21 +93,21 @@ namespace tools {
 	};
 
 	template <typename _Val>
-	struct slist_iterator : slist_iterator_base {
+	struct unilist_iterator : unilist_iterator_base {
 	public:
 		typedef _Val  value_type;
 		typedef _Val& reference;
 		typedef _Val* pointer;
 
 	protected:
-		typedef slist_iterator<_Val>                 self_type;
-		typedef slist_iterator_base                  base_type;
-		typedef typename slist_node<_Val>::link_type link_type;
+		typedef unilist_iterator<_Val>                 self_type;
+		typedef unilist_iterator_base                  base_type;
+		typedef typename unilist_node<_Val>::link_type link_type;
 
 	public:
-		slist_iterator() = default;
-		slist_iterator(const self_type&) = default;
-		explicit slist_iterator(link_type p) : slist_iterator_base(p) { }
+		unilist_iterator() = default;
+		unilist_iterator(const self_type&) = default;
+		explicit unilist_iterator(link_type p) : unilist_iterator_base(p) { }
 
 		reference operator*() const {return link_type(node)->val; }
 
@@ -123,16 +125,16 @@ namespace tools {
 		}
 	};
 
-	inline bool operator==(const slist_iterator_base& left,
-	                       const slist_iterator_base& right) {
+	inline bool operator==(const unilist_iterator_base& left,
+	                       const unilist_iterator_base& right) {
 		return left.node == right.node;
 	}
 
 	template <
 		typename _Val,
-		typename _Allocator = std::allocator<slist_node<_Val>>
+		typename _Allocator = std::allocator<unilist_node<_Val>>
 	>
-	class single_list {
+	class unidirectional_list {
 	public:
 		typedef _Val        value_type;
 		typedef _Val*       pointer;
@@ -144,9 +146,9 @@ namespace tools {
 		typedef ptrdiff_t   difference_type;
 
 	protected:
-		typedef single_list<_Val, _Allocator> self_type;
-		typedef slist_node<_Val>              node_type;
-		typedef node_type*                    link_type;
+		typedef unidirectional_list<_Val, _Allocator> self_type;
+		typedef unilist_node<_Val>                    node_type;
+		typedef node_type*                            link_type;
 
 		typedef standard_alloc<node_type, _Allocator> allocator_type;
 
@@ -208,10 +210,10 @@ namespace tools {
 		}
 
 	public:
-		single_list() { _initialize(); }
+		unidirectional_list() { _initialize(); }
 
 		template <typename _InputIterator>
-		single_list(_InputIterator first, _InputIterator last) {
+		unidirectional_list(_InputIterator first, _InputIterator last) {
 			_initialize();
 			while (first != last) {
 				this->push_back(*first);
@@ -219,14 +221,14 @@ namespace tools {
 			}
 		}
 
-		~single_list() {
+		~unidirectional_list() {
 			_clear();
 			put_node(m_before_head);
 		}
 
 	protected:
-		typedef slist_iterator<value_type>       inner_iterator;
-		typedef slist_const_iterator<value_type> const_inner_iterator;
+		typedef unilist_iterator<value_type>       inner_iterator;
+		typedef unilist_const_iterator<value_type> const_inner_iterator;
 	public:
 		typedef _iterator_wrapper<inner_iterator, self_type>       iterator;
 		typedef _iterator_wrapper<const_inner_iterator, self_type> const_iterator;
@@ -281,7 +283,7 @@ namespace tools {
 			}
 
 			link_type before_tail =
-				(link_type) slist_node_base::last(m_before_head, tail());
+				(link_type) unilist_node_base::last(m_before_head, tail());
 			_erase_after(before_tail);
 			tail() = before_tail;
 		}

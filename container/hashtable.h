@@ -6,13 +6,13 @@
 #define _HASHTABLE_H_
 
 #include "algorithm.h"
-#include "single_list.h"
+#include "unidirectional_list.h"
 #include "sequence.h"
 
 namespace tools {
 
 	template <typename _Val>
-	using _bucket_node = slist_node<_Val>;
+	using _bucket_node = unilist_node<_Val>;
 
 	template <
 		typename _Key,

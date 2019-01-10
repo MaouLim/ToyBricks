@@ -7,11 +7,11 @@
 #include <random>
 #include <ctime>
 
-#include "container/sequence.h"
-#include "ml/optimizer.h"
-#include "math/vector3.h"
-#include "math/vector_function.h"
-#include "math/vector_io.h"
+#include "../container/sequence.h"
+#include "../ml/optimizer.h"
+#include "../math/vector3.h"
+#include "../math/vector_function.h"
+#include "../math/vector_io.h"
 
 typedef int                               label;
 typedef std::pair<tools::vector3d, label> sample;
@@ -33,17 +33,18 @@ inline tools::vector3d operator/(const tools::vector3d& v, double scalar) {
 	return result;
 }
 
-class gradient_descent_with_rmse :
+class gradient_descent_with_entropy :
 	public ml::gradient_descent<tools::vector3d, sample> {
 public:
 
-	explicit gradient_descent_with_rmse(double alpha, double r) :
+	explicit gradient_descent_with_entropy(double alpha, double r) :
 		gradient_descent(alpha), regular(r) { }
 
 	param_type gradient(
 		const param_type& theta, const sample_type& sample
 	) override {
-		return (tools::sigmoid(tools::dot(theta, sample.first)) - sample.second) * sample.first + regular * theta;
+		return (tools::sigmoid(tools::dot(theta, sample.first)) - sample.second) * sample.first
+		       + regular * theta;
 	}
 
 	double regular;
@@ -73,17 +74,17 @@ inline label model(const tools::vector3d& theta, const tools::vector3d& vec) {
 int main() {
 
 	/* constants */
-	const size_t training_set_sz = 400;
+	const size_t training_set_sz = 16;
 	const size_t testing_set_sz  = 100;
-	const size_t max_epoch       = 300;
+	const size_t max_epoch       = 2000;
 	const size_t batch_size      = 20;
 
 	/* generate training-set */
 	tools::vector3d inputs[training_set_sz];
 	for (size_t i = 0; i < training_set_sz; ++i) {
 		inputs[i][0] = +1.0;
-		inputs[i][1] = -10.0 + i % 20;
-		inputs[i][2] = -10.0 + (i / 20) % 20;
+		inputs[i][1] = -2.0 + i % 4;
+		inputs[i][2] = -2.0 + (i / 4) % 4;
 	}
 
 	sample_space training_set;
@@ -99,7 +100,7 @@ int main() {
 
 	/* initialize parameters */
 	tools::vector3d theta = { 0.5, 0.1, 0.2 };
-	gradient_descent_with_rmse optimizer(2e-2, 1e-2);
+	gradient_descent_with_entropy optimizer(1e-1, 1e-3);
 
 	sample_space mini_batch; mini_batch.reserve(batch_size);
 

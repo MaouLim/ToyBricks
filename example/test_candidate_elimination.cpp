@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-#include "ml/candidate_elimination.h"
+#include "../ml/candidate_elimination.h"
 
 enum sky         { sunny, rainy };
 enum air_temp    { t_warm, t_cold };
@@ -33,3 +33,4 @@ int main() {
 	std::cout << space << std::endl;
 	return 0;
 }
+

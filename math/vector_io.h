@@ -9,8 +9,6 @@
 
 namespace tools {
 
-	const char tab = '\t';
-
 	template <		
 		typename _Tp,
 		typename _Precise,

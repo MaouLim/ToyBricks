@@ -34,9 +34,10 @@ namespace ml {
 
 		std::vector<link_type> children;
 		attr_type              attribute;
+		value_type             choice;
 		value_type             value;
 
-		_dt_node() : attribute(invalid_attr), value(invalid_value) { }
+		_dt_node() : attribute(invalid_attr), choice(invalid_value), value(invalid_value) { }
 	};
 
 	template <typename _Attr, typename _Val>
@@ -84,11 +85,14 @@ namespace ml {
 
 	private:
 		static link_type _create_node(
-			const attr_type& attr, const value_type& value
+			const attr_type&  attr,
+			const value_type& choice,
+			const value_type& label
 		) {
 			link_type p = new node_type();
 			p->attribute = attr;
-			p->value = value;
+			p->choice = choice;
+			p->value = label;
 			return p;
 		}
 
@@ -223,6 +227,7 @@ namespace ml {
 			if (_same_label(matrix)) {
 				root = _create_node(
 					node_type::invalid_attr,
+					choice,
 					matrix[0][matrix.cols() - 1]
 				);
 				return;
@@ -231,6 +236,7 @@ namespace ml {
 			if (blacklist.size() == count_list) {
 				root = _create_node(
 					node_type::invalid_attr,
+				    choice,
 				    _most_label(matrix)
 				);
 				return;
@@ -240,7 +246,7 @@ namespace ml {
 			assert(node_type::invalid_attr != id);
 			blacklist[id] = true; ++count_list;
 
-			root = _create_node(id, choice);
+			root = _create_node(id, choice, node_type::invalid_value);
 
 			std::set<attr_type> value_set;
 
@@ -276,8 +282,8 @@ namespace ml {
 
 			for (size_t i = 0; i < indent; ++i) { stream << ' '; }
 
-			if (node_type::invalid_value != root->value) {
-				stream << "choice: " << root->value << "->";
+			if (node_type::invalid_value != root->choice) {
+				stream << "choice: " << root->choice << "->";
 			}
 
 			if (root->children.empty()) {

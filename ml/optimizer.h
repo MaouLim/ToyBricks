@@ -19,6 +19,7 @@ namespace ml {
 		typedef _Step      step_type;
 
 		explicit gradient_descent(step_type alpha) : m_alpha(alpha) { }
+		virtual ~gradient_descent() = default;
 
 		template <typename _SampleSpaceIterator>
 		param_type& optimize(param_type&         theta,

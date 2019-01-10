@@ -6,11 +6,11 @@
 #include <random>
 #include <ctime>
 
-#include "container/sequence.h"
-#include "ml/optimizer.h"
-#include "math/vector4.h"
-#include "math/vector_function.h"
-#include "math/vector_io.h"
+#include "../container/sequence.h"
+#include "../ml/optimizer.h"
+#include "../math/vector4.h"
+#include "../math/vector_function.h"
+#include "../math/vector_io.h"
 
 inline tools::vector4d operator+(const tools::vector4d& left, const tools::vector4d& right) {
 	return apply(left, right, tools::plus<double>());
@@ -47,7 +47,6 @@ public:
 
 inline double target_func(const tools::vector4d& x) {
 	return 1 * x[0] + 2 * x[1] + 3 * x[2] + 4 * x[3];
-
 }
 
 inline double func_with_noisy(const tools::vector4d& x) {
