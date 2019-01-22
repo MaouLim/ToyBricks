@@ -15,7 +15,7 @@ namespace tools {
 	struct unilist_node_base {
 		typedef unilist_node_base* base_ptr;
 
-		explicit unilist_node_base(base_ptr p = nullptr) : next(p) { }
+		explicit unilist_node_base(base_ptr _next = nullptr) : next(_next) { }
 		~unilist_node_base() { next = nullptr; }
 
 		base_ptr next;
@@ -41,7 +41,7 @@ namespace tools {
 
 		value_type val;
 
-		link_type get_next() const { return (link_type) this->next; }
+		link_type& get_next() const { return (link_type&) this->next; }
 	};
 
 	struct unilist_iterator_base {
@@ -74,8 +74,8 @@ namespace tools {
 	public:
 		unilist_const_iterator() = default;
 		unilist_const_iterator(const self_type&) = default;
-		unilist_const_iterator(const base_type& other) : unilist_iterator_base(other.node) { }
-		explicit unilist_const_iterator(link_type p) : unilist_iterator_base(p) { }
+		unilist_const_iterator(const base_type& other) : base_type(other.node) { }
+		explicit unilist_const_iterator(link_type p) : base_type(p) { }
 
 		reference operator*() const { return link_type(node)->val; }
 		pointer operator->() const { return &(operator*()); }
@@ -85,7 +85,7 @@ namespace tools {
 			return *this;
 		}
 
-		self_type& operator++(int) {
+		self_type operator++(int) {
 			self_type tmp = *this;
 			increment();
 			return tmp;
@@ -154,15 +154,15 @@ namespace tools {
 
 	private:
 		link_type m_before_head;
-		link_type m_tail;
 
 	protected:
 		link_type get_node() { return allocator_type::allocate(); }
 		void put_node(link_type p) { allocator_type::deallocate(p); }
 
-		link_type create_node(const value_type& val) {
+		template <typename... _Args>
+		link_type create_node(_Args&&... args) {
 			link_type p = get_node();
-			construct(p, val);
+			construct(p, std::forward<_Args>(args)...);
 			return p;
 		}
 
@@ -176,7 +176,6 @@ namespace tools {
 		}
 
 		link_type& head() const { return (link_type&) (m_before_head->next); }
-		link_type& tail() const { return (link_type&) m_tail; }
 
 	private:
 		void _initialize() {
@@ -185,25 +184,20 @@ namespace tools {
 				throw std::bad_alloc();
 			}
 			head() = m_before_head;
-			tail() = m_before_head;
 		}
 
-		void _clear() {
-			while (!empty()) {
-				_erase_after(m_before_head);
-			}
-			tail() = m_before_head;
-		}
+		void _clear() { while (!empty()) { _erase_after(m_before_head); } }
 
 		link_type _erase_after(link_type p) {
-			link_type to_remove = (link_type) p->next;
+			link_type to_remove = p->get_next();
 			p->next = to_remove->next;
 			destroy_node(to_remove);
 			return (link_type) p->next;
 		}
 
-		link_type _insert_after(link_type p, const value_type& val) {
-			link_type new_node = create_node(val);
+		template <typename... _Args>
+		link_type _emplace_after(link_type p, _Args&& ... args) {
+			link_type new_node = create_node(std::forward<_Args>(args)...);
 			new_node->next = p->next;
 			p->next = new_node;
 			return new_node;
@@ -215,8 +209,9 @@ namespace tools {
 		template <typename _InputIterator>
 		unidirectional_list(_InputIterator first, _InputIterator last) {
 			_initialize();
+			link_type cursor = m_before_head;
 			while (first != last) {
-				this->push_back(*first);
+				cursor = this->_emplace_after(cursor, *first);
 				++first;
 			}
 		}
@@ -237,6 +232,25 @@ namespace tools {
 		typedef _reverse_iterator<const_iterator> const_reverse_iterator;
 
 	public:
+		const_reference operator[](size_type index) const {
+			size_type i = 0;
+			link_type cursor = head();
+			while (m_before_head != cursor && i < index) {
+				cursor = cursor->get_next();
+				++i;
+			}
+
+			if (m_before_head == cursor) {
+				throw std::overflow_error("Index out of bound.");
+			}
+
+			return cursor->val;
+		}
+
+		reference operator[](size_type index) {
+			return const_cast<reference>(((const self_type*) this)->operator[](index));
+		}
+
 		bool empty() const { return head() == m_before_head; }
 
 		size_type size() const {
@@ -244,7 +258,7 @@ namespace tools {
 			link_type cursor = head();
 			while (m_before_head != cursor) {
 				++count;
-				cursor = (link_type) cursor->next;
+				cursor = cursor->get_next();
 			}
 			return count;
 		}
@@ -254,21 +268,9 @@ namespace tools {
 		reference front() { return const_cast<reference>(((const self_type*) this)->front()); }
 		const_reference front() const { return head()->val; }
 
-		reference back() { return const_cast<reference>(((const self_type*) this)->back()); }
-		const_reference back() const { return tail()->val; }
-
 		void clear() { _clear(); }
 
-		void swap(self_type& other) {
-			link_type tmp_before_head = m_before_head;
-			link_type tmp_tail = m_tail;
-
-			m_before_head = other.m_before_head;
-			m_tail = other.m_tail;
-
-			other.m_before_head = tmp_before_head;
-			other.m_tail = tmp_tail;
-		}
+		void swap(self_type& other) { tools::swap(m_before_head, other.m_before_head); }
 
 		void pop_front() {
 			if (empty()) {
@@ -277,19 +279,8 @@ namespace tools {
 			_erase_after(m_before_head);
 		}
 
-		void pop_back() {
-			if (empty()) {
-				throw std::overflow_error("Empty list.");
-			}
-
-			link_type before_tail =
-				(link_type) unilist_node_base::last(m_before_head, tail());
-			_erase_after(before_tail);
-			tail() = before_tail;
-		}
-
 		iterator erase_after(const_iterator pos) {
-			if (empty() || end() == pos) {
+			if (empty()) {
 				throw std::overflow_error("Invalid iterator or empty list.");
 			}
 
@@ -297,23 +288,20 @@ namespace tools {
 		}
 
 		iterator insert_after(const_iterator pos, const value_type& val) {
-			link_type new_node = _insert_after((link_type) pos.base().node, val);
-
-			if (new_node->next == m_before_head) {
-				tail() = new_node;
-			}
-
-			return inner_iterator(new_node);
+			return inner_iterator(_emplace_after((link_type) pos.base().node, val));
 		}
 
-		void push_front(const value_type& val) {
-			link_type new_node = _insert_after(m_before_head, val);
-			if (new_node->next == m_before_head) {
-				tail() = new_node;
-			}
+		void push_front(const value_type& val) { _emplace_after(m_before_head, val); }
+
+		template <typename... _Args>
+		void emplace_after(const_iterator pos, _Args&&... args) {
+			_emplace_after((link_type) pos.base().node, std::forward<_Args>(args)...);
 		}
 
-		void push_back(const value_type& val) { tail() = _insert_after(tail(), val); }
+		template <typename... _Args>
+		void emplace_front(_Args&&... args) {
+			_emplace_after(m_before_head, std::forward<_Args>(args)...);
+		}
 
 		iterator begin() { return inner_iterator(head()); }
 		const_iterator begin() const { return const_inner_iterator(head()); }

@@ -5,6 +5,9 @@
 #include <ctime>
 
 #include "container/type_base.h"
+#include "container/pair.h"
+#include "container/unidirectional_list.h"
+#include "container/bidirectional_list.h"
 
 struct A {
 	int    a;
@@ -23,11 +26,42 @@ struct A {
 
 int main() {
 
-	typedef tools::_or<typename tools::_is_scalar<A>::type,
-		typename tools::_is_trivially_destructible<A>::type
-	>::type res_type;
+//	typedef tools::_or<typename tools::_is_scalar<A>::type,
+//		typename tools::_is_trivially_destructible<A>::type
+//	>::type res_type;
+//
+//	static_assert(std::is_same<res_type, tools::_false_type>::value);
+//
+//	const A a;
+//	auto p = tools::make_pair(1, a);
+//	static_assert(std::is_same<decltype(p), tools::pair<int, A>>::value);
 
-	static_assert(std::is_same<res_type, tools::_false_type>::value);
+	int arr[] = { 1, 2, 3 };
+
+	tools::bidirectional_list<int> list(arr, arr + 3);
+	std::cout << "list.empty(): " << list.empty() << std::endl;
+	std::cout << "list.size(): "  << list.size() << std::endl;
+
+	list.clear();
+
+	for (auto each : list) { std::cout << each << " "; }
+	std::cout << std::endl;
+
+//	std::cout << list[1] << std::endl;
+//
+//	list.erase(list.begin());
+//
+//	list.emplace_front(100);
+//	list.push_front(200);
+//
+//	for (auto each : list) { std::cout << each << " "; }
+//	std::cout << std::endl;
+//
+//	list.clear();
+//	std::cout << "list.empty(): " << list.empty() << std::endl;
+//	std::cout << "list.size(): "  << list.size() << std::endl;
+
+
 
 
 //	std::mt19937 rand_engine((unsigned int) time(nullptr));

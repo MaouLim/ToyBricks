@@ -319,7 +319,6 @@ namespace tools {
 
 		template <typename _InputIterator>
 		iterator insert(const_iterator pos, _InputIterator first, _InputIterator last) {
-
 			size_type count = 0;
 			auto _first = first;
 			while (_first != last) { ++count; ++_first; }

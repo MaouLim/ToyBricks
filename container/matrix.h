@@ -11,6 +11,8 @@
 
 namespace tools {
 
+	enum class matrix_init { zero, identity, random };
+
 	template <typename _Val>
 	struct _col_iterator_base {
 		typedef std::random_access_iterator_tag iterator_category;
@@ -204,6 +206,7 @@ namespace tools {
 
 		size_type rows() const { return _Rows; }
 		size_type cols() const { return _Cols; }
+		size_type size() const { return attributes::elements; }
 
 		void fill(const value_type& val) { m_buff.fill(val); }
 		void swap(self_type& other) { m_buff.swap(other.m_buff); }
@@ -290,18 +293,18 @@ namespace tools {
 		typedef iterator       row_iterator;
 		typedef const_iterator const_row_iterator;
 
-		enum init_mode { zero, identity, random };
+		//enum init_mode { zero, identity, random };
 
-		matrix(size_type rows, size_type cols, init_mode mode = zero) :
+		matrix(size_type rows, size_type cols, matrix_init mode = matrix_init::zero) :
 			m_rows(rows), m_cols(cols)
 		{
 			switch (mode) {
-				case zero : {
+				case matrix_init::zero : {
 					m_buff.resize(m_rows * m_cols, value_type(0));
 					break;
 				}
-				case identity : { break; } //todo
-				case random : { break; } //todo
+				case matrix_init::identity : { break; } //todo
+				case matrix_init::random : { break; } //todo
 				default : { break; }
 			}
 		}
@@ -329,6 +332,10 @@ namespace tools {
 
 		size_type rows() const { return m_rows; }
 		size_type cols() const { return m_cols; }
+		size_type size() const { return m_rows * m_cols; }
+
+		bool squared()  const { return m_rows == m_cols; }
+		bool degraded() const { return 0 == m_rows || 0 == m_cols; }
 
 		self_type& operator=(const self_type& other) {
 			if (this == &other) { return *this; }
@@ -362,7 +369,7 @@ namespace tools {
 		}
 
 		self_type& reshape(size_type new_rows, size_type new_cols) {
-			self_type tmp(new_rows, new_cols, zero);
+			self_type tmp(new_rows, new_cols);
 
 			size_type less_rows = tools::min(new_rows, m_rows);
 			size_type less_cols = tools::min(new_cols, m_cols);
@@ -379,7 +386,7 @@ namespace tools {
 
 		template <typename _Condition>
 		self_type select(_Condition cond) const {
-			self_type result(0, this->m_cols, zero);
+			self_type result(0, this->m_cols);
 
 			for (size_type r = 0; r < m_rows; ++r) {
 				if (cond(r, row_begin(r), row_end(r))) {
@@ -401,12 +408,80 @@ namespace tools {
 				++first; ++i;
 			}
 
-			if (i < m_cols) {
+			while (i < m_cols) {
 				m_buff.emplace_back(value_type(0));
 				++i;
 			}
 
 			++m_rows;
+		}
+
+		template <typename _InputIterator>
+		void push_top(_InputIterator first, _InputIterator last) {
+			container_type tmp;
+			tmp.reverse((m_rows + 1) * m_cols);
+
+			size_type i = 0;
+			while (first != last && i < m_cols) {
+				tmp.emplace_back(*first);
+				++first; ++i;
+			}
+
+			while (i < m_cols) {
+				tmp.emplace_back(value_type(0));
+				++i;
+			}
+
+			for_each(
+				m_buff.begin(), m_buff.end(),
+				[&tmp](const value_type& item) { tmp.emplace_back(item); }
+			);
+
+			m_buff.swap(tmp); ++m_rows;
+		}
+
+		template <typename _InputIterator>
+		void push_left(_InputIterator first, _InputIterator last) {
+			const size_type new_size = m_rows * (m_cols + 1);
+
+			container_type tmp;
+			tmp.reverse(new_size);
+
+			auto itr = m_buff.begin();
+
+			for (size_type i = 0; i < new_size; ++i) {
+				if (0 == i % (m_cols + 1)) {
+					if (first != last) {
+						tmp.emplace_back(*first); ++first;
+					}
+					else { tmp.emplace_back(value_type(0)); }
+				}
+				else { tmp.emplace_back(*itr); ++itr; }
+			}
+
+			m_buff.swap(tmp); ++m_cols;
+		}
+
+		template <typename _InputIterator>
+		void push_right(_InputIterator first, _InputIterator last) {
+			const size_type new_size = m_rows * (m_cols + 1);
+
+			container_type tmp;
+			tmp.reverse(new_size);
+
+			auto itr = m_buff.begin();
+
+			for (size_type i = 0; i < new_size; ++i) {
+				if (0 == (i + 1) % (m_cols + 1)) {
+					if (first != last) {
+						tmp.emplace_back(*first); ++first;
+					}
+					else { tmp.emplace_back(value_type(0)); }
+				}
+				else { tmp.emplace_back(*itr); ++itr; }
+			}
+
+			m_buff.swap(tmp); ++m_cols;
 		}
 
 		void fill(const value_type& v) {
@@ -437,6 +512,52 @@ namespace tools {
 	private:
 		size_type m_rows, m_cols;
 		container_type m_buff;
+	};
+
+	template <
+	    typename _Val,
+	    typename _Index             = size_t,
+	    typename _ContainerForVal   = tools::sequence<_Val>,
+	    typename _ContainerForIndex = tools::sequence<_Index>
+	>
+	class spare_matrix {
+	public:
+		typedef _Index     index_type;
+		typedef index_type size_type;
+
+		typedef _Val        value_type;
+		typedef _Val*       pointer;
+		typedef const _Val* const_pointer;
+		typedef _Val&       reference;
+		typedef const _Val& const_reference;
+
+	protected:
+		typedef spare_matrix<
+		    _Val, _Index, _ContainerForVal, _ContainerForIndex
+		> self_type;
+
+		typedef _ContainerForIndex index_vec;
+		typedef _ContainerForVal   value_vec;
+
+//		spare_matrix(dim_type dim, mat_type type) : m_dim(dim) {
+//			if (mat_type::ZERO == type) {
+//				m_row_index.resize(m_dim + 1, index_type(0));
+//				return;
+//			}
+//
+//			m_row_index.reserve(dim + 1);
+//			m_col_index.reserve(dim);
+//			m_values.reserve(dim);
+//
+//			for (index_type i = 0; i < m_dim; ++i) {
+//				m_row_index.push_back(i);
+//				m_col_index.push_back(i);
+//				m_values.push_back(one);
+//			}
+//
+//			m_row_index.push_back(dim);
+//		}
+		// todo
 	};
 };
 

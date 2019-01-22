@@ -8,6 +8,7 @@
 #include "algorithm.h"
 #include "unidirectional_list.h"
 #include "sequence.h"
+#include "pair.h"
 
 namespace tools {
 
@@ -366,13 +367,13 @@ namespace tools {
 			return _bkt_index_key(key, buckets.size());
 		}
 
-		std::pair<iterator, bool> _insert_unique_noresize(const value_type& val) {
+		tools::pair<iterator, bool> _insert_unique_noresize(const value_type& val) {
 			const size_type index = bucket_index(val);
 			link_type head = buckets[index];
 
 			for (link_type current = head; nullptr != current;) {
 				if (equal(key_of(current->val), key_of(val))) {
-					return std::pair<iterator, bool>(inner_iterator(current, this), false);
+					return tools::pair<iterator, bool>(inner_iterator(current, this), false);
 				}
 				current = current->get_next();
 			}
@@ -381,7 +382,7 @@ namespace tools {
 			new_node->next = head;
 			buckets[index] = new_node;
 			++count_elements;
-			return std::pair<iterator, bool>(inner_iterator(new_node, this), true);
+			return tools::pair<iterator, bool>(inner_iterator(new_node, this), true);
 		}
 
 	protected:
@@ -494,7 +495,7 @@ namespace tools {
 			}
 		}
 
-		std::pair<iterator, bool> insert_unique(const value_type& val) {
+		tools::pair<iterator, bool> insert_unique(const value_type& val) {
 			resize(count_elements + 1);
 			return _insert_unique_noresize(val);
 		}

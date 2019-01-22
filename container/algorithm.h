@@ -63,6 +63,13 @@ namespace tools {
 		return target;
 	}
 
+	template <typename _InputIterator, typename _Predicate>
+	void for_each(_InputIterator first, _InputIterator last, _Predicate predicate) {
+		while (first != last) {
+			predicate(*first); ++first;
+		}
+	}
+
 	template <typename _InputIterator, typename _Val>
 	_Val accumulate(_InputIterator first, _InputIterator last, _Val init) {
 		return accumulate(

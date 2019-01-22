@@ -9,6 +9,7 @@
 #include "iterator.h"
 #include "memory.h"
 #include "tree_base.h"
+#include "pair.h"
 
 namespace tools {
 
@@ -167,7 +168,7 @@ namespace tools {
 		reverse_iterator rend() { return begin(); }
 		const_reverse_iterator rend() const { return begin(); }
 
-		std::pair<iterator, bool> insert_unique(const value_type& val) {
+		tools::pair<iterator, bool> insert_unique(const value_type& val) {
 
 		}
 

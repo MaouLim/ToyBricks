@@ -11,6 +11,7 @@
 #include "iterator.h"
 #include "memory.h"
 #include "tree_base.h"
+#include "pair.h"
 
 namespace tools {
 
@@ -484,7 +485,7 @@ namespace tools {
 		}
 
 	public:
-		std::pair<iterator, bool> insert_unique(const value_type& val) {
+		tools::pair<iterator, bool> insert_unique(const value_type& val) {
 			link_type parent = m_header;
 			link_type current = root();
 			bool prior_to = true;
@@ -503,7 +504,7 @@ namespace tools {
 			inner_iterator iter(parent);
 			if (prior_to) {
 				if (leftmost() == parent) {
-					return std::pair<iterator, bool>(
+					return tools::pair<iterator, bool>(
 						_insert(current, parent, val), true
 					);
 				}
@@ -513,12 +514,12 @@ namespace tools {
 			}
 
 			if (m_comp(key_of(*iter), key_of(val))) {
-				return std::pair<iterator, bool>(
+				return tools::pair<iterator, bool>(
 					_insert(current, parent, val), true
 				);
 			}
 
-			return std::pair<iterator, bool>(iter, false);
+			return tools::pair<iterator, bool>(iter, false);
 		}
 
 		iterator insert_equal(const value_type& val) {

@@ -6,8 +6,11 @@
 #define _TREE_BASE_H_
 
 #include <cassert>
+#include <memory>
 
 #include "iterator.h"
+#include "memory.h"
+#include "pair.h"
 
 namespace tools {
 
@@ -581,7 +584,7 @@ namespace tools {
 			return _leaf(pos.base().node);
 		}
 
-		std::pair<iterator, bool> create_root(const value_type& val) {
+		tools::pair<iterator, bool> create_root(const value_type& val) {
 			bool no_root = empty();
 			if (no_root) {
 				link_type new_node = create_node(val);
@@ -591,16 +594,18 @@ namespace tools {
 				++count;
 			}
 
-			return std::pair<iterator, bool>(
+			return tools::pair<iterator, bool>(
 				inner_iterator(root()), no_root
 			);
 		}
 
-		std::pair<iterator, bool>
-			insert_left(const_iterator    pos,
-			            const value_type& val) {
+		tools::pair<iterator, bool>
+		    insert_left(
+				const_iterator    pos,
+				const value_type& val
+		) {
 			if (empty() || end() == pos) {
-				return std::pair<iterator, bool>(end(), false);
+				return tools::pair<iterator, bool>(end(), false);
 			}
 
 			link_type parent  = (link_type) pos.base().node;
@@ -615,16 +620,18 @@ namespace tools {
 				++count;
 			}
 
-			return std::pair<iterator, bool>(
+			return tools::pair<iterator, bool>(
 				inner_iterator((link_type) parent->left), no_left
 			);
 		}
 
-		std::pair<iterator, bool>
-			insert_right(const_iterator    pos,
-			             const value_type& val) {
+		tools::pair<iterator, bool>
+			insert_right(
+				const_iterator    pos,
+			    const value_type& val
+		) {
 			if (empty() || end() == pos) {
-				return std::pair<iterator, bool>(end(), false);
+				return tools::pair<iterator, bool>(end(), false);
 			}
 
 			link_type parent = (link_type) pos.base().node;
@@ -639,7 +646,7 @@ namespace tools {
 				++count;
 			}
 
-			return std::pair<iterator, bool>(
+			return tools::pair<iterator, bool>(
 				inner_iterator((link_type) parent->right), no_right
 			);
 		}
@@ -763,13 +770,13 @@ namespace tools {
 		}
 
 	private:
-		std::pair<iterator, bool> create_root(const value_type& val) = delete;
+		tools::pair<iterator, bool> create_root(const value_type& val) = delete;
 
-		std::pair<iterator, bool>
+		tools::pair<iterator, bool>
 			insert_left(const_iterator    pos,
 		                const value_type& val) = delete;
 
-		std::pair<iterator, bool>
+		tools::pair<iterator, bool>
 			insert_right(const_iterator    pos,
 		                 const value_type& val) = delete;
 
@@ -816,9 +823,9 @@ namespace tools {
 			return inner_iterator(_insert(current, parent, val));
 		}
 
-		std::pair<iterator, bool> insert_unique(const value_type& val) {
+		tools::pair<iterator, bool> insert_unique(const value_type& val) {
 			if (this->empty()) {
-				return std::make_pair<iterator, bool>(
+				return tools::make_pair<iterator, bool>(
 					base_type::create_root(val).first, true
 				);
 			}
@@ -841,7 +848,7 @@ namespace tools {
 			inner_iterator iter(parent);
 			if (prior_to) {
 				if (first() == parent) {
-					return std::pair<iterator, bool>(
+					return tools::pair<iterator, bool>(
 						_insert(current, parent, val), true
 					);
 				}
@@ -849,12 +856,12 @@ namespace tools {
 			}
 
 			if (comparator(key_of(parent->value), key_of(val))) {
-				return std::pair<iterator, bool>(
+				return tools::pair<iterator, bool>(
 					_insert(current, parent, val), true
 				);
 			}
 
-			return std::pair<iterator, bool>(iterator(iter), false);
+			return tools::pair<iterator, bool>(iterator(iter), false);
 		}
 
 		iterator erase(const_iterator pos) {

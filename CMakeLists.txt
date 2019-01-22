@@ -36,7 +36,7 @@ add_executable(ContainerModule
         container/type_base.h
         common/defines.h
         common/functor.h
-        container/bidirectional_list.h)
+        container/bidirectional_list.h container/pair.h container/graph.h container/adjacency_list.h)
 
 add_executable(CandidateEliminationAlgorithm example/test_candidate_elimination.cpp ml/candidate_elimination.h math/vector4.h)
 add_executable(DecisionTreeAlgorithm example/test_decision_tree.cpp ml/decision_tree.h)
