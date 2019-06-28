@@ -1,15 +1,13 @@
-#ifndef _MATH_BASE_H_
-#define _MATH_BASE_H_
+/*
+ * Created by Maou Lim on 2019/6/26.
+ */
+
+#ifndef _MATH_COMMON_H_
+#define _MATH_COMMON_H_
 
 #include <cmath>
 
-namespace tools {
-
-	namespace precise {
-		struct lowp  { };
-		struct midp  { };
-		struct highp { };
-	}
+namespace math {
 
 	constexpr float pi = 3.14159265359f;
 
@@ -27,4 +25,4 @@ namespace tools {
 	}
 }
 
-#endif // _PRIMITIVES_H_
+#endif //_MATH_COMMON_H_

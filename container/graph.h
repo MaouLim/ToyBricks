@@ -11,100 +11,62 @@
 
 namespace tools {
 
-	struct _graph_node_base {
-		typedef _graph_node_base          self_type;
-		typedef self_type*                base_ptr;
-		typedef tools::sequence<base_ptr> adjacency_type;
+	template <typename _EdgeIterator>
+	struct _neighbor_iterator_base {
 
-		virtual ~_graph_node_base() = default;
-
-		adjacency_type adjacency;
-	};
-
-	template <typename _VertexAttr, typename _EdgeAttr>
-	struct _graph_node : _graph_node_base {
-	private:
-		typedef _graph_node_base                    base_type;
-		typedef _graph_node<_VertexAttr, _EdgeAttr> self_type;
-		typedef _VertexAttr                         vertex_attr;
-		typedef _EdgeAttr                           edge_attr;
-		typedef self_type*                          link_type;
-		typedef adjacency_type::size_type           size_type;
-
-	public:
-		vertex_attr v_attr;
-		edge_attr   e_attr;
-
-		_graph_node(const vertex_attr& _va, const edge_attr& _ea) :
-			v_attr(_va), e_attr(_ea) { }
-
-		link_type& operator[](size_type index) { (link_type&) adjacency[index]; }
-	};
-
-	template <typename _VertexAttr>
-	struct _graph_node<_VertexAttr, void> : _graph_node_base {
-	private:
-		typedef _graph_node_base               base_type;
-		typedef _graph_node<_VertexAttr, void> self_type;
-		typedef _VertexAttr                    vertex_attr;
-		typedef void                           edge_attr;
-		typedef self_type*                     link_type;
-		typedef adjacency_type::size_type      size_type;
-
-	public:
-		vertex_attr v_attr;
-
-		_graph_node(const vertex_attr& _va) : v_attr(_va) { }
-
-		link_type& operator[](size_type index) { (link_type&) adjacency[index]; }
 	};
 
 	template <
-	    typename _VertexAttr, typename _EdgeAttr, typename _Alloc
+	    typename _Key,
+	    typename _Vertex,
+	    typename _Edge,
+	    typename _KeyEqual
 	>
-	class graph {
-		typedef _graph_node_base*                     base_ptr;
-		typedef _graph_node<_VertexAttr, _EdgeAttr>   node_type;
-		typedef node_type*                            link_type;
-		typedef graph<_VertexAttr, _EdgeAttr, _Alloc> self_type;
-		typedef standard_alloc<node_type, _Alloc>     allocator_type;
+	struct digraph {
 
-	public:
-		typedef size_t      size_type;
-		typedef _VertexAttr vertex_attr;
-		typedef _EdgeAttr   edge_attr;
+		typedef digraph<_Key, _Vertex, _Edge, _KeyEqual> self_type;
 
-		bool empty() const { return 0 == m_vertices; }
+		typedef _Key    key_type;
+		typedef _Vertex vertex_attr;
+		typedef _Edge   edge_attr;
+		typedef size_t  size_type;
 
-		size_type size()         const { return num_vertices(); }
-		size_type num_vertices() const { return m_vertices; }
-		size_type num_edges()    const { return m_edges; }
+		virtual ~digraph() = default;
 
-	protected:
-		link_type get_node() { return allocator_type::allocate(); }
-		void put_node(link_type p) { allocator_type::deallocate(p); }
+		vertex_attr& operator[](const key_type& key) { return vertex(key); }
+		const vertex_attr& operator[](const key_type& key) const { return vertex(key); }
 
-		link_type create_node(const vertex_attr& _va, const edge_attr& _ea) {
-			auto p = get_node();
-			construct(p, _va, _ea);
-			return p;
+		edge_attr& operator()(const key_type& from, const key_type& to) { return edge(from, to); }
+		const edge_attr& operator()(const key_type& from, const key_type& to) const { return edge(from, to); }
+
+		bool empty() const { return 0 == edges(); }
+		bool zero() const { return 0 == vertices(); }
+
+		virtual size_t vertices() const = 0;
+		virtual size_t edges() const = 0;
+
+		virtual const vertex_attr& vertex(const key_type&) const = 0;
+		virtual const edge_attr& edge(const key_type& from, const key_type&) const = 0;
+
+		vertex_attr& vertex(const key_type& key) {
+			return const_cast<vertex_attr&>(((const self_type*) this)->vertex(key));
 		}
 
-		void destroy_node(link_type p) {
-			destroy(p);
-			put_node(p);
+		edge_attr& edge(const key_type& from, const key_type& to) {
+			return const_cast<edge_attr&>(((const self_type*) this)->edge(from, to));
 		}
 
-	private:
-		void _clear() {
-			return;
+		template <typename _VertexVisitor>
+		void foreach_dfs(const key_type& origin, _VertexVisitor visitor) {
+
 		}
 
+		template <typename _VertexVisitor>
+		void foreach_bfs(const key_type& origin, _VertexVisitor visitor) {
 
-	private:
-		size_type m_edges, m_vertices;
-		base_ptr  m_base;
+		}
 	};
+
 }
 
 #endif //_GRAPH_H_

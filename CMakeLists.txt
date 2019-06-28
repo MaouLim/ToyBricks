@@ -6,14 +6,18 @@ set(CMAKE_CXX_STANDARD 14)
 add_executable(MathModule
         test_math.cpp
         math/vector2.h
-        math/math_base.h
-        math/vector_traits.h
+        math/math_type.h
         math/vector3.h
-        math/vector_function.h
-        math/vector_io.h
-        math/vector_operation.h
+        math/math_io.h
+        math/vector_operator.h
         common/defines.h
         common/functor.h
+        ml/tensor.h
+        math/matrix.h
+        math/vector.h
+        math/vector_algo.h
+        math/matrix_algo.h
+        math/math_common.h
 )
 
 add_executable(ContainerModule
@@ -33,7 +37,7 @@ add_executable(ContainerModule
         container/unidirectional_list.h
         container/stack.h
         container/tree_base.h
-        container/type_base.h
+        common/type_base.h
         common/defines.h
         common/functor.h
         container/bidirectional_list.h container/pair.h container/graph.h container/adjacency_list.h)

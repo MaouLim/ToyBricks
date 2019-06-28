@@ -63,7 +63,7 @@ namespace tools {
 
 		base_ptr node;
 
-		bilist_iterator_base() = default;
+		bilist_iterator_base() : node(nullptr) { }
 		explicit bilist_iterator_base(base_ptr p) : node(p) { }
 
 		void increment() { node = node->next; }

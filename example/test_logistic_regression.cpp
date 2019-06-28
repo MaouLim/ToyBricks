@@ -11,7 +11,7 @@
 #include "../ml/optimizer.h"
 #include "../math/vector3.h"
 #include "../math/vector_function.h"
-#include "../math/vector_io.h"
+#include "../math/math_io.h"
 
 typedef int                               label;
 typedef std::pair<tools::vector3d, label> sample;

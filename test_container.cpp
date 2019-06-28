@@ -4,7 +4,7 @@
 #include <random>
 #include <ctime>
 
-#include "container/type_base.h"
+#include "common/type_base.h"
 #include "container/pair.h"
 #include "container/unidirectional_list.h"
 #include "container/bidirectional_list.h"

@@ -27,6 +27,8 @@ namespace tools {
 	typedef sint64_t           ptrdiff_t;
 
 	const char tab   = '\t';
+	const char space = ' ';
+	const char ret   = '\n';
 }
 
 

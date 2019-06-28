@@ -20,6 +20,14 @@ namespace tools {
 	typedef _bool_type<true>  _true_type;
 	typedef _bool_type<false> _false_type;
 
+
+	template <tools::uint64_t _Constant>
+	struct _uint64_type {
+		typedef tools::uint64_t         value_type;
+		typedef _uint64_type<_Constant> type;
+		static const tools::uint64_t value = _Constant;
+	};
+
 	template <typename _BoolCover>
 	struct _convert;
 
@@ -117,6 +125,26 @@ namespace tools {
 
 	template <>
 	struct _and<_true_type, _true_type> {
+		typedef _true_type type;
+	};
+
+	template <typename _B, typename _If, typename _IfNot>
+	struct _if {
+		typedef _If type;
+	};
+
+	template <typename _If, typename _IfNot>
+	struct _if<_false_type, _If, _IfNot> {
+		typedef _IfNot type;
+	};
+
+	template <typename _A, typename _B>
+	struct _same_type {
+		typedef _false_type type;
+	};
+
+	template <typename _T>
+	struct _same_type<_T, _T> {
 		typedef _true_type type;
 	};
 }

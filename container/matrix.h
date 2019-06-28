@@ -293,8 +293,6 @@ namespace tools {
 		typedef iterator       row_iterator;
 		typedef const_iterator const_row_iterator;
 
-		//enum init_mode { zero, identity, random };
-
 		matrix(size_type rows, size_type cols, matrix_init mode = matrix_init::zero) :
 			m_rows(rows), m_cols(cols)
 		{

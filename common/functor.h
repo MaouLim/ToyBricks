@@ -164,6 +164,12 @@ namespace tools {
 	struct identity {
 		const _Tp& operator()(const _Tp& val) const { return val; }
 	};
+
+	template <typename _Tp>
+	struct zero {
+		_Tp operator()(_Tp) const { return static_cast<_Tp>(0); }
+		_Tp operator()() const { return static_cast<_Tp>(0); }
+	};
 }
 
 #endif //_FUNCTOR_H_

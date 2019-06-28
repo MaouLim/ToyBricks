@@ -10,7 +10,7 @@
 #include "../ml/optimizer.h"
 #include "../math/vector4.h"
 #include "../math/vector_function.h"
-#include "../math/vector_io.h"
+#include "../math/math_io.h"
 
 inline tools::vector4d operator+(const tools::vector4d& left, const tools::vector4d& right) {
 	return apply(left, right, tools::plus<double>());

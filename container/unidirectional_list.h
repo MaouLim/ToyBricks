@@ -51,7 +51,7 @@ namespace tools {
 
 		base_ptr node;
 
-		unilist_iterator_base() = default;
+		unilist_iterator_base() : node(nullptr) { }
 		explicit unilist_iterator_base(base_ptr p) : node(p) { }
 
 		void increment() {
@@ -294,13 +294,13 @@ namespace tools {
 		void push_front(const value_type& val) { _emplace_after(m_before_head, val); }
 
 		template <typename... _Args>
-		void emplace_after(const_iterator pos, _Args&&... args) {
-			_emplace_after((link_type) pos.base().node, std::forward<_Args>(args)...);
+		iterator emplace_after(const_iterator pos, _Args&&... args) {
+			return inner_iterator(_emplace_after((link_type) pos.base().node, std::forward<_Args>(args)...));
 		}
 
 		template <typename... _Args>
-		void emplace_front(_Args&&... args) {
-			_emplace_after(m_before_head, std::forward<_Args>(args)...);
+		iterator emplace_front(_Args&&... args) {
+			return inner_iterator(_emplace_after(m_before_head, std::forward<_Args>(args)...));
 		}
 
 		iterator begin() { return inner_iterator(head()); }
